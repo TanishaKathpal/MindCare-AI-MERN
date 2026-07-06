@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = `${import.meta.env.VITE_API_URL}/auth`;
+const API = `${import.meta.env.VITE_API_URL}/user`;
 
 export const getCurrentUser = async () => {
   const token = localStorage.getItem("token");
