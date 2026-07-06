@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const Mood = require("../models/Mood");
+const Mood = require("../models/mood");
 const Journal = require("../models/Journal");
 
 const getAdminDashboard = async (req, res) => {

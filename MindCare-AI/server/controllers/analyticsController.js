@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Mood = require("../models/Mood");
+const Mood = require("../models/mood");
 const Journal = require("../models/Journal");
 
 const getDashboardAnalytics = async (req, res) => {
