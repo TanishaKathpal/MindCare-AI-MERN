@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/moods";
+const API = `${import.meta.env.VITE_API_URL}/moods`;
 
 const getToken = () => {
   return localStorage.getItem("token");
