@@ -1,29 +1,5 @@
-const Mood = require("../models/Mood");
+const Mood = require("../models/mood");
 
-// Create Mood
-// const createMood = async (req, res) => {
-//   try {
-//     const { mood, note } = req.body;
-
-//     const newMood = await Mood.create({
-//       user: req.user.id,
-//       mood,
-//       note,
-//     });
-
-//     res.status(201).json({
-//       success: true,
-//       message: "Mood saved successfully",
-//       mood: newMood,
-//     });
-
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: "Server Error",
-//     });
-//   }
-// };
 
 
 // Create Mood
