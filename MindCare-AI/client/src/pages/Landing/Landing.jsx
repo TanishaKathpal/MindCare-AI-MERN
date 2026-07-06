@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 import {
   FiArrowRight,
   FiCheckCircle,
@@ -10,73 +11,84 @@ import {
   FiSmile,
   FiUser,
   FiStar,
+  FiCpu,
 } from "react-icons/fi";
+
 
 const features = [
   {
-    title: 'Mood Tracking',
-    description: 'Log your emotions with calm, guided prompts and understand your patterns over time.',
+    title: "Mood Tracker",
+    description:
+      "Track your daily emotions with beautiful mood cards and build healthy emotional awareness over time.",
     icon: FiSmile,
   },
   {
-    title: 'Smart Journal',
-    description: 'Capture thoughts, reflections, and daily wins in a private and supportive space.',
+    title: "Smart Journal",
+    description:
+      "Write your thoughts, reflections, and daily experiences in a secure personal journal.",
     icon: FiBookOpen,
   },
   {
-    title: 'Wellness Analytics',
-    description: 'Visualize progress and gain insight into habits that support better mental wellness.',
+    title: "AI Wellness Coach",
+    description:
+      "Receive personalized wellness insights and supportive guidance powered by AI based on your mood and journal.",
+    icon: FiHeart,
+  },
+  {
+    title: "Analytics Dashboard",
+    description:
+      "Visualize mood trends, journal activity, streaks, and emotional patterns with interactive analytics.",
     icon: FiTrendingUp,
   },
   {
-    title: 'Secure & Private',
-    description: 'Your data stays protected with privacy-first design and secure account handling.',
+    title: "Personal Profile",
+    description:
+      "Manage your profile, monitor your wellness journey, and keep your personal information up to date.",
+    icon: FiUser,
+  },
+  {
+    title: "Secure Authentication",
+    description:
+      "Your wellness data stays private with secure login, protected routes, and encrypted authentication.",
     icon: FiShield,
   },
 ];
 
-const steps = ['Sign Up', 'Track Mood', 'Write Journal', 'View Progress'];
-
-const testimonials = [
-  {
-    quote:
-      'MindCare AI helped me create a simple routine that made my emotional check-ins feel manageable.',
-    name: 'Nina R.',
-    role: 'Wellness Advocate',
-  },
-  {
-    quote:
-      'The interface feels calm, thoughtful, and genuinely supportive. I look forward to using it daily.',
-    name: 'Marcus L.',
-    role: 'Product Designer',
-  },
-  {
-    quote:
-      'It brings clarity to my mood patterns and makes journaling feel effortless and meaningful.',
-    name: 'Asha P.',
-    role: 'Entrepreneur',
-  },
+const steps = [
+  "Create Account",
+  "Track Mood",
+  "AI Wellness Analysis",
+  "View Analytics",
 ];
+
 
 const faqs = [
   {
-    question: 'Is MindCare AI suitable for daily mental wellness support?',
+    question: "Is my personal data and journal secure?",
     answer:
-      'Yes. It is designed for people who want a gentle, structured way to track emotions, journal, and reflect over time.',
+      "Yes. Your account is protected through secure authentication, and your mood logs and journal entries are stored privately. Only you can access your personal wellness data.",
   },
   {
-    question: 'How is my information protected?',
+    question: "How does the AI Wellness Coach work?",
     answer:
-      'We use secure account practices and a privacy-first approach to help keep your personal wellness data protected.',
+      "The AI Wellness Coach analyzes your daily mood and journal entry to provide supportive insights, practical wellness suggestions, and motivational guidance. It is designed to encourage self-reflection and should not replace professional medical advice.",
   },
   {
-    question: 'Do I need prior experience with wellness apps?',
+    question: "Can I track my emotional progress over time?",
     answer:
-      'No. The experience is designed to be simple, intuitive, and welcoming for both first-time and returning users.',
+      "Absolutely. MindCare AI provides an Analytics Dashboard where you can view mood trends, journal activity, emotional patterns, and consistency through interactive charts and insights.",
   },
-];
 
+  {
+    question: "Can I talk to a professional counsellor through MindCare AI?",
+    answer:
+      "Not yet. Counsellor support is planned as a future enhancement of MindCare AI. Upcoming versions aim to include counsellor discovery, appointment booking, and secure chat or video consultation features to provide professional mental health support.",
+  }
+];
 function Landing() {
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/80 backdrop-blur">
@@ -95,10 +107,28 @@ function Landing() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <button className="hidden rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-cyan-400 hover:text-cyan-600 sm:block">
+            <button
+              onClick={() => navigate("/login")}
+              className="hidden rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-cyan-400 hover:text-cyan-600 sm:block"
+            >
               Login
             </button>
-            <button className="rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-700">
+            <button
+              onClick={() => {
+
+                if (token) {
+
+                  navigate("/dashboard");
+
+                } else {
+
+                  navigate("/register");
+
+                }
+
+              }}
+              className="rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-700"
+            >
               Get Started
             </button>
           </div>
@@ -113,17 +143,42 @@ function Landing() {
               Trusted by modern wellness teams
             </div>
             <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
-              Your Mental Health Matters
+              AI-Powered Mental Wellness Platform
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
-              Support your emotional wellbeing with guided mood tracking, thoughtful journaling, and meaningful insights designed for everyday balance.
+              Track your mood, write personal journals, receive AI-powered wellness insights,
+              visualize emotional trends, and build healthier habits—all in one secure platform.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button className="inline-flex items-center justify-center rounded-full bg-cyan-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-700">
+              <button
+                onClick={() => {
+
+                  if (token) {
+
+                    navigate("/dashboard");
+
+                  } else {
+
+                    navigate("/register");
+
+                  }
+
+                }}
+                className="inline-flex items-center justify-center rounded-full bg-cyan-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-700"
+              >
                 Get Started
                 <FiArrowRight className="ml-2" />
               </button>
-              <button className="inline-flex items-center justify-center rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-cyan-400 hover:text-cyan-600">
+              <button
+                onClick={() =>
+                  document
+                    .getElementById("features")
+                    ?.scrollIntoView({
+                      behavior: "smooth",
+                    })
+                }
+                className="inline-flex items-center justify-center rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-cyan-400 hover:text-cyan-600"
+              >
                 Learn More
               </button>
             </div>
@@ -175,7 +230,7 @@ function Landing() {
             </h2>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {features.map(({ title, description, icon: Icon }) => (
               <div key={title} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
@@ -187,6 +242,7 @@ function Landing() {
             ))}
           </div>
         </section>
+
 
         <section id="about" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
@@ -216,41 +272,14 @@ function Landing() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-600">Testimonials</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-              Trusted by people who value calm and consistency
-            </h2>
-          </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {testimonials.map((item) => (
-              <div key={item.name} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-1 text-cyan-600">
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <FiCheckCircle key={index} />
-                  ))}
-                </div>
-                <p className="mt-4 text-sm leading-7 text-slate-600">“{item.quote}”</p>
-                <div className="mt-6 flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-cyan-100 text-cyan-700">
-                    <FiUser className="text-lg" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900">{item.name}</p>
-                    <p className="text-sm text-slate-500">{item.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+
+
 
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="rounded-[2rem] border border-slate-200 bg-slate-900 p-8 text-white shadow-xl sm:p-10">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-xl sm:p-10">
             <div className="max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">FAQ</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-600">FAQ</p>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
                 Common questions, answered clearly
               </h2>
@@ -258,12 +287,12 @@ function Landing() {
 
             <div className="mt-10 space-y-4">
               {faqs.map((faq) => (
-                <div key={faq.question} className="rounded-2xl border border-white/10 bg-white/10 p-5">
+                <div key={faq.question} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-cyan-300 hover:shadow-md">
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-lg font-semibold">{faq.question}</h3>
-                    <FiChevronDown className="text-cyan-300" />
+                    <h3 className="text-lg font-semibold text-slate-900">{faq.question}</h3>
+                    <FiChevronDown className="text-cyan-600" />
                   </div>
-                  <p className="mt-3 text-sm leading-7 text-slate-300">{faq.answer}</p>
+                  <p className="mt-3 text-sm leading-7 text-slate-900">{faq.answer}</p>
                 </div>
               ))}
             </div>
@@ -271,9 +300,38 @@ function Landing() {
         </section>
       </main>
 
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+
+        <div className="rounded-[35px] bg-slate-900 p-12 text-center text-white shadow-2xl">
+
+          <h2 className="text-4xl font-bold">
+
+            Ready to Begin Your Wellness Journey?
+
+          </h2>
+
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+
+            Join MindCare AI to monitor your mood,
+            write personal journals,
+            receive AI-powered insights,
+            and build healthier habits every day.
+
+          </p>
+
+          <button
+            onClick={() => token ? navigate("/dashboard") : navigate("/register")}
+            className="mt-8 rounded-full bg-cyan-500 px-8 py-3 font-semibold text-white transition hover:bg-cyan-600 hover:scale-105"
+          >
+            Get Started
+          </button>
+
+        </div>
+
+      </section>
       <footer id="contact" className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-slate-600 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <p>© 2026 MindCare AI. All rights reserved.</p>
+          <p>© 2026 MindCare AI • Empowering Better Mental Wellness Through Technology.</p>
           <div className="flex gap-4">
             <a href="#" className="transition hover:text-cyan-600">Instagram</a>
             <a href="#" className="transition hover:text-cyan-600">LinkedIn</a>

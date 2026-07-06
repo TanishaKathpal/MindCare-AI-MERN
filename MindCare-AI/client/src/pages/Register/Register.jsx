@@ -1,6 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   FiUser,
   FiMail,
@@ -12,17 +13,31 @@ import {
 
 import { registerUser } from "../../services/authService";
 
+
+
 function Register() {
   const navigate = useNavigate();
+  useEffect(() => {
+
+    const token = localStorage.getItem("token");
+
+    if (token) {
+
+      navigate("/dashboard");
+
+    }
+
+  }, [navigate]);
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",});
+    confirmPassword: "",
+  });
 
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -37,13 +52,13 @@ function Register() {
     e.preventDefault();
 
     if (!formData.name || !formData.email || !formData.password) {
-      alert("Please fill all required fields.");
+      toast.error("Please fill all required fields.");
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-        alert("Passwords do not match");
-        return;
-        }
+      toast.error("Passwords do not match");
+      return;
+    }
     try {
       setLoading(true);
 
@@ -51,143 +66,160 @@ function Register() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        };
+      };
 
-    const res = await registerUser(payload);
+      const res = await registerUser(payload);
 
       alert(res.data.message);
 
       navigate("/login");
 
     } catch (err) {
-      alert(err.response?.data?.message || "Registration Failed");
+      toast.error(err.response?.data?.message || "Registration Failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-cyan-50 to-white flex items-center justify-center px-6 py-10">
 
-      <div className="grid lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden max-w-6xl w-full">
+      <div className="w-full max-w-md rounded-[32px] bg-white p-10 shadow-2xl">
 
-        {/* Left Side */}
-        <div className="bg-gradient-to-br from-sky-600 to-cyan-500 text-white p-10 flex flex-col justify-center">
 
-          <h1 className="text-5xl font-bold mb-6">
-            MindCare AI
-          </h1>
-
-          <h2 className="text-3xl font-semibold mb-4">
-            Create Your Account ❤️
-          </h2>
-
-          <p className="text-lg leading-8 opacity-90">
-            Start your journey towards better mental wellness.
-            Track your mood, write journals and gain AI-powered insights.
-          </p>
-
-        </div>
 
         {/* Right Side */}
-        <div className="p-10">
+        <div>
 
-          <h2 className="text-3xl font-bold text-slate-800 mb-8">
-            Register
+          <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg">
+
+            <FiHeart size={28} />
+
+          </div>
+
+          <h2 className="text-center text-xl font-semibold text-slate-800">
+
+            MindCare AI
+
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <h1 className="mt-2 text-center text-3xl font-bold text-slate-900">
 
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-sky-500"
-            />
+            Join MindCare AI
+          </h1>
 
-            <input
-              type="email"
-              name="email"
-              placeholder="Email Address"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-sky-500"
-            />
+          <p className="mt-2 text-center text-slate-500">
 
-            <div className="flex items-center border rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-sky-500">
-
-                <FiLock className="text-gray-400 mr-3"/>
-
-                <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full outline-none"
-                />
-
-                <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                >
-                    {showPassword ? <FiEyeOff/> : <FiEye/>}
-                </button>
-
-                </div>
+            Start your wellness journey today.
 
 
-            <div className="flex items-center border rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-sky-500">
+          </p>
 
-                <FiLock className="text-gray-400 mr-3"/>
 
-                <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    placeholder="Confirm Password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full outline-none"
-                />
 
-                <button
-                    type="button"
-                    onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                    }
-                >
-                    {showConfirmPassword ? <FiEyeOff/> : <FiEye/>}
-                </button>
+          <form onSubmit={handleSubmit} className="space-y-5 mt-10">
+            <div className="flex items-center rounded-xl border border-slate-300 px-4 py-3 transition hover:border-cyan-500 focus-within:border-cyan-500 focus-within:ring-4 focus-within:ring-cyan-100">
 
-                </div>
+              <FiUser className="mr-3 text-slate-400" />
 
-                <label className="flex items-center gap-2 text-sm text-gray-600">
+              <input
+                type="text"
+                name="name"
+                placeholder="Full Name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full outline-none"
+              />
 
-                    <input required type="checkbox"/>
+            </div>
+            <div className="flex items-center rounded-xl border border-slate-300 px-4 py-3 transition hover:border-cyan-500 focus-within:border-cyan-500 focus-within:ring-4 focus-within:ring-cyan-100">
 
-                    I agree to the Terms & Privacy Policy
+              <FiMail className="mr-3 text-slate-400" />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full outline-none"
+              />
 
-                    </label>
+            </div>
+
+            <div className="flex items-center rounded-xl border border-slate-300 px-4 py-3 transition hover:border-cyan-500 focus-within:border-cyan-500 focus-within:ring-4 focus-within:ring-cyan-100">
+
+              <FiLock className="mr-3 text-slate-400" />
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FiEye /> : <FiEyeOff />}
+              </button>
+
+
+            </div>
+
+
+
+
+
+
+
+
+            <div className="flex items-center rounded-xl border border-slate-300 px-4 py-3 transition hover:border-cyan-500 focus-within:border-cyan-500 focus-within:ring-4 focus-within:ring-cyan-100">
+
+              <FiLock className="mr-3 text-slate-400" />
+
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full outline-none"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
+              >
+                {showConfirmPassword ? <FiEye /> : <FiEyeOff />}
+              </button>
+
+            </div>
+
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-sky-600 hover:bg-sky-700 transition text-white py-3 rounded-xl font-semibold"
+              className="w-full rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 py-3 font-semibold text-white transition duration-300 hover:scale-[1.02] hover:shadow-xl"
             >
               {loading ? "Creating Account..." : "Create Account"}
             </button>
 
           </form>
 
-          <p className="text-center mt-6 text-gray-600">
+          <p className="mt-6 text-center text-sm text-slate-600">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-sky-600 font-semibold hover:underline"
+              className="font-semibold text-cyan-600 hover:underline"
             >
+
               Login
+
             </Link>
+
           </p>
 
         </div>

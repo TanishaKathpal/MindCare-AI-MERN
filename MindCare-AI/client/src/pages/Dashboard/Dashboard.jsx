@@ -2,6 +2,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "../../services/userService";
+import { getTodayMood } from "../../services/moodService";
+import { getJournals } from "../../services/journalService";
+import { getDashboardAnalytics } from "../../services/analyticsService";
 
 import {
   FiHome,
@@ -15,16 +18,30 @@ import {
   FiBarChart2,
   FiChevronRight,
   FiActivity,
+  FiCpu,
 } from 'react-icons/fi';
 import { FiHeart } from "react-icons/fi";
+
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 
 const sidebarItems = [
   { label: 'Dashboard', icon: FiHome, active: true },
   { label: 'Mood Tracker', icon: FiSmile },
   { label: 'Journal', icon: FiBookOpen },
+  { label: "AI Coach", icon: FiCpu },
+  { label: "Analytics", icon: FiBarChart2 },
   { label: 'Profile', icon: FiUser },
   { label: 'Settings', icon: FiSettings },
   { label: 'Logout', icon: FiLogOut },
+
 ];
 
 const recentEntries = [
@@ -52,44 +69,152 @@ const quickActions = [
 ];
 
 
+
+
+
 function Dashboard() {
-     const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
+  const [todayMood, setTodayMood] = useState(null);
+  const [journals, setJournals] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        navigate("/login");
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
+  useEffect(() => {
+
+    const fetchUser = async () => {
+
+      try {
+
+        const data = await getCurrentUser();
+
+        setUser(data);
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+
     };
 
-    useEffect(() => {
+    fetchUser();
 
-        const fetchUser = async () => {
+    const fetchMood = async () => {
+      try {
+        const res = await getTodayMood();
+        setTodayMood(res.data.mood);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-        try {
+    fetchMood();
 
-            const data = await getCurrentUser();
+    const fetchJournals = async () => {
+      try {
+        const res = await getJournals();
 
-            setUser(data);
+        setJournals(res.data.journals.slice(0, 3));
 
-        } catch (error) {
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchJournals();
 
-            console.log(error);
+    const fetchAnalytics = async () => {
+      try {
+        const res = await getDashboardAnalytics();
+        setAnalytics(res.data.stats);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-        }
+    fetchAnalytics();
 
-        };
+  }, []);
 
-        fetchUser();
+  const hour = new Date().getHours();
 
-    }, []);
+  let greeting = "Good Evening";
+
+  if (hour < 12) {
+    greeting = "Good Morning";
+  } else if (hour < 17) {
+    greeting = "Good Afternoon";
+  }
+
+  const insightMap = {
+    Amazing:
+      "You're feeling fantastic today. Keep spreading the positive energy!",
+
+    Happy:
+      "Happiness grows when shared. Keep doing what makes you smile.",
+
+    Okay:
+      "Even ordinary days matter. Small steps create lasting progress.",
+
+    Sad:
+      "Take things one step at a time. Be gentle with yourself today.",
+
+    Terrible:
+      "It's okay to have difficult days. Rest, breathe, and remember tomorrow is a new beginning.",
+  };
+
+  const focusMap = {
+    Amazing: "Keep the Momentum",
+    Happy: "Practice Gratitude",
+    Okay: "Stay Consistent",
+    Sad: "Self Care",
+    Terrible: "Take Deep Breaths",
+  };
+
+  const score = analytics?.wellnessScore || 0;
+
+  let scoreMessage = "";
+
+  if (score >= 80)
+    scoreMessage = "Excellent balance";
+
+  else if (score >= 60)
+    scoreMessage = "Doing well";
+
+  else if (score >= 40)
+    scoreMessage = "Keep going";
+
+  else
+    scoreMessage = "Start building consistency";
+
+
+
+  const streak = analytics?.streak || 0;
+
+  let streakMessage = "";
+
+  if (streak >= 10) {
+    streakMessage = "Amazing consistency";
+  } else if (streak >= 5) {
+    streakMessage = "Great progress";
+  } else if (streak >= 2) {
+    streakMessage = "Building healthy habits";
+  } else {
+    streakMessage = "Let's begin your journey";
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="mx-auto flex max-w-7xl flex-col lg:flex-row">
         <aside className="w-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-6 text-white lg:min-h-screen lg:w-72">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500/20 text-cyan-300">
-              <FiHeart  className="text-xl" />
+              <FiHeart className="text-xl" />
             </div>
             <div>
               <p className="text-lg font-semibold">MindCare AI</p>
@@ -98,17 +223,60 @@ function Dashboard() {
           </div>
 
           <nav className="mt-8 space-y-2">
-           
-              {sidebarItems.map(({ label, icon: Icon, active }) => (
-                <button
-                    key={label}
-                    onClick={label === "Logout" ? handleLogout : undefined}
-                    className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm transition ${
-                    active
-                        ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
-                        : "text-slate-300 hover:bg-white/10 hover:text-white"
-                    }`}
-                >
+
+            {sidebarItems.map(({ label, icon: Icon, active }) => (
+              <button
+                key={label}
+                onClick={() => {
+
+                  if (label === "Logout") {
+
+                    handleLogout();
+
+                  }
+
+                  else if (label === "Mood Tracker") {
+
+                    navigate("/mood");
+
+                  }
+
+                  else if (label === "Journal") {
+
+                    navigate("/journal");
+
+                  }
+
+                  else if (label === "AI Coach") {
+
+                    navigate("/ai");
+
+                  }
+
+                  else if (label === "Analytics") {
+
+                    navigate("/analytics");
+
+                  }
+
+                  else if (label === "Profile") {
+
+                    navigate("/profile");
+
+                  }
+
+                  else if (label === "Settings") {
+
+                    navigate("/settings");
+
+                  }
+
+                }}
+                className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm transition ${active
+                    ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
+                    : "text-slate-300 hover:bg-white/10 hover:text-white"
+                  }`}
+              >
                 <span className="flex items-center gap-3">
                   <Icon className="text-base" />
                   {label}
@@ -121,7 +289,9 @@ function Dashboard() {
           <div className="mt-10 rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur">
             <p className="text-sm font-medium text-cyan-200">Daily Insight</p>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              Your mood trend is improving steadily. Keep your routine going today.
+              {todayMood
+                ? insightMap[todayMood.mood]
+                : "Log today's mood to receive your personalized insight."}
             </p>
           </div>
         </aside>
@@ -144,7 +314,7 @@ function Dashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-900">{user?.name || "User"}</p>
-                  <p className="text-xs text-slate-500">Premium Member</p>
+                  <p className="text-xs text-slate-500">Welcome Back</p>
                 </div>
               </div>
             </div>
@@ -154,14 +324,16 @@ function Dashboard() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <p className="text-sm font-medium text-cyan-100">Welcome back</p>
-                <h2 className="mt-2 text-3xl font-semibold">Good Evening, {user?.name} 👋</h2>
+                <h2 className="mt-2 text-3xl font-semibold">{greeting}, {user?.name} 👋</h2>
                 <p className="mt-3 max-w-2xl text-sm text-cyan-50/90 sm:text-base">
-                  You’re doing great. A calm evening and a few mindful habits can make tomorrow feel lighter.
+                  You’re doing great. Just take it one step at a time.
                 </p>
               </div>
               <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
                 <p className="text-sm text-cyan-50">Today’s focus</p>
-                <p className="mt-1 text-lg font-semibold">Rest + Reflection</p>
+                <p className="mt-1 text-lg font-semibold">{todayMood
+                  ? focusMap[todayMood.mood]
+                  : "Track Today's Mood"}</p>
               </div>
             </div>
           </section>
@@ -174,8 +346,20 @@ function Dashboard() {
                   <FiSmile className="text-lg" />
                 </div>
               </div>
-              <p className="mt-4 text-2xl font-semibold text-slate-900">😊 Calm</p>
-              <p className="mt-2 text-sm text-slate-500">Balanced and focused</p>
+              <p className="mt-4 text-2xl font-semibold text-slate-900">
+                {todayMood
+                  ? `${todayMood.mood === "Amazing" ? "🤩" :
+                    todayMood.mood === "Happy" ? "😊" :
+                      todayMood.mood === "Okay" ? "🙂" :
+                        todayMood.mood === "Sad" ? "😔" :
+                          todayMood.mood === "Terrible" ? "😭" : "🙂"} ${todayMood.mood}`
+                  : "No Mood"}
+              </p>
+
+              <p className="mt-2 text-sm text-slate-500">
+                {todayMood?.note || "Log your mood today."}
+              </p>
+
             </div>
 
             <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -185,8 +369,12 @@ function Dashboard() {
                   <FiBookOpen className="text-lg" />
                 </div>
               </div>
-              <p className="mt-4 text-2xl font-semibold text-slate-900">12</p>
-              <p className="mt-2 text-sm text-slate-500">This month so far</p>
+              <p className="mt-4 text-2xl font-semibold text-slate-900">
+                {journals.length}
+              </p>
+              <p className="mt-2 text-sm text-slate-500">
+                Entries you've written
+              </p>
             </div>
 
             <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -196,8 +384,12 @@ function Dashboard() {
                   <FiActivity className="text-lg" />
                 </div>
               </div>
-              <p className="mt-4 text-2xl font-semibold text-slate-900">7 Days</p>
-              <p className="mt-2 text-sm text-slate-500">Consistency is improving</p>
+              <p className="mt-4 text-2xl font-semibold text-slate-900">
+                {analytics ? `${analytics.streak} Days` : "--"}
+              </p>
+              <p className="mt-3 text-sm text-slate-500">
+                {streakMessage}
+              </p>
             </div>
 
             <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -207,8 +399,8 @@ function Dashboard() {
                   <FiBarChart2 className="text-lg" />
                 </div>
               </div>
-              <p className="mt-4 text-2xl font-semibold text-slate-900">92%</p>
-              <p className="mt-2 text-sm text-slate-500">Excellent balance</p>
+              <p className="mt-4 text-2xl font-semibold text-slate-900">{analytics ? `${analytics.wellnessScore}%` : "--"}</p>
+              <p className="mt-2 text-sm text-slate-500">{scoreMessage}</p>
             </div>
           </section>
 
@@ -220,24 +412,63 @@ function Dashboard() {
                   <p className="text-sm text-slate-500">A calm snapshot of your week</p>
                 </div>
                 <button className="rounded-full bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-700">
-                  Last 7 Days
+                  Weekly Trend
                 </button>
               </div>
 
               <div className="mt-6 rounded-3xl border border-slate-100 bg-slate-50 p-4 sm:p-6">
-                <div className="flex h-56 items-end justify-between gap-2 rounded-2xl border border-dashed border-slate-200 bg-gradient-to-t from-cyan-50 to-white p-4">
-                  {[45, 68, 58, 82, 72, 88, 76].map((height, index) => (
-                    <div key={index} className="flex flex-1 flex-col items-center gap-2">
-                      <div className="w-full rounded-t-2xl bg-gradient-to-t from-cyan-600 to-teal-400" style={{ height: `${height}%` }} />
-                      <span className="text-xs font-medium text-slate-500">
-                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][index]}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-4 text-sm text-slate-500">
-                  Chart placeholder for your upcoming weekly mood insights.
-                </p>
+
+                <ResponsiveContainer width="100%" height={300}>
+
+                  <LineChart
+                    data={analytics?.weeklyMoodTrend || []}
+                  >
+
+                    <CartesianGrid strokeDasharray="3 3" />
+
+                    <XAxis
+                      dataKey="createdAt"
+                      tickFormatter={(date) =>
+                        new Date(date).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                        })
+                      }
+                    />
+
+                    <YAxis
+                      allowDecimals={false}
+                      domain={[1, 5]}
+                      ticks={[1, 2, 3, 4, 5]}
+                    />
+
+                    <Tooltip
+                      formatter={(value) => {
+                        const moodMap = {
+                          5: "Amazing 🤩",
+                          4: "Happy 😊",
+                          3: "Okay 🙂",
+                          2: "Sad 😔",
+                          1: "Terrible 😭",
+                        };
+
+                        return [moodMap[value], "Mood"];
+                      }}
+                    />
+
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="#06b6d4"
+                      strokeWidth={3}
+                      dot={{ r: 5 }}
+                      activeDot={{ r: 8 }}
+                    />
+
+                  </LineChart>
+
+                </ResponsiveContainer>
+
               </div>
             </div>
 
@@ -245,21 +476,53 @@ function Dashboard() {
               <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-slate-900">Recent Journal Entries</h3>
-                  <button className="text-sm font-medium text-cyan-600">View all</button>
-                </div>
 
+                </div>
                 <div className="mt-4 space-y-3">
-                  {recentEntries.map((entry) => (
-                    <div key={entry.title} className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-900">{entry.title}</p>
-                          <p className="mt-1 text-sm text-slate-600">{entry.text}</p>
+
+                  {journals.length > 0 ? (
+
+                    journals.map((journal) => (
+
+                      <div
+                        key={journal._id}
+                        className="rounded-2xl border border-slate-100 bg-slate-50 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+
+                          <div>
+
+                            <p className="text-sm font-semibold text-slate-900">
+                              {journal.title}
+                            </p>
+
+                            <p className="mt-1 text-sm text-slate-600">
+                              {journal.content.length > 80
+                                ? journal.content.slice(0, 80) + "..."
+                                : journal.content}
+                            </p>
+
+                          </div>
+
+                          <span className="text-xs font-medium text-slate-400">
+                            {new Date(journal.createdAt).toLocaleDateString()}
+                          </span>
+
                         </div>
-                        <span className="text-xs font-medium text-slate-400">{entry.time}</span>
                       </div>
-                    </div>
-                  ))}
+
+                    ))
+
+                  ) : (
+
+                    <p className="text-center text-sm text-slate-500 py-6">
+
+                      No journal entries yet.
+
+                    </p>
+
+                  )}
+
                 </div>
               </div>
 
@@ -269,6 +532,21 @@ function Dashboard() {
                   {quickActions.map(({ label, icon: Icon }) => (
                     <button
                       key={label}
+                      onClick={() => {
+
+                        if (label === "Add Mood") {
+                          navigate("/mood");
+                        }
+
+                        else if (label === "New Journal") {
+                          navigate("/journal");
+                        }
+
+                        else if (label === "View Analytics") {
+                          navigate("/analytics");
+                        }
+
+                      }}
                       className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm font-medium text-slate-700 transition hover:border-cyan-400 hover:bg-cyan-50 hover:text-cyan-700"
                     >
                       <span className="flex items-center gap-3">

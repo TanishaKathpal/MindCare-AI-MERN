@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const app = require("./app");
 const connectDB = require("./config/db");
 
@@ -9,3 +11,4 @@ connectDB();
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+console.log("Groq Key:", process.env.GROQ_API_KEY);
